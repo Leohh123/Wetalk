@@ -1,12 +1,9 @@
-const { contextBridge } = require("electron");
-
-const { io } = require("socket.io-client");
-const socket = io("http://localhost:3000");
+const { contextBridge, ipcRenderer } = require("electron");
 
 // window.addEventListener("DOMContentLoaded", () => {});
 
 contextBridge.exposeInMainWorld("wetalkAPI", {
-    send: (msg) => {
-        socket.emit("chat-message", String(msg));
-    },
+    sendMessage: (msg) => ipcRenderer.invoke("send-message", msg),
+    login: (uid) => ipcRenderer.invoke("login", uid),
+    onReceiveMessage: (callback) => ipcRenderer.on("receive-message", callback),
 });
