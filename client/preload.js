@@ -1,10 +1,12 @@
-window.addEventListener("DOMContentLoaded", () => {
-    const replaceText = (selector, text) => {
-        const element = document.getElementById(selector);
-        if (element) element.innerText = text;
-    };
+const { contextBridge } = require("electron");
 
-    for (const type of ["chrome", "node", "electron"]) {
-        replaceText(`${type}-version`, process.versions[type]);
-    }
+const { io } = require("socket.io-client");
+const socket = io("http://localhost:3000");
+
+// window.addEventListener("DOMContentLoaded", () => {});
+
+contextBridge.exposeInMainWorld("wetalkAPI", {
+    send: (msg) => {
+        socket.emit("chat-message", String(msg));
+    },
 });
