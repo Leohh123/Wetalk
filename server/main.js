@@ -8,8 +8,24 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 // const ns = io.of("/wetalk");
 
-app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/index.html");
+const multer = require("multer");
+const storage = multer.diskStorage({
+    destination(req, file, callback) {
+        callback(null, __dirname + "/storage");
+    },
+    filename(req, file, callback) {
+        callback(null, file.originalname);
+    },
+});
+const upload = multer({ storage });
+
+app.post("/upload", upload.array("any"), (req, res, next) => {
+    // res.send({ code: 0 });
+});
+
+app.get("/download/:filename", (req, res, next) => {
+    console.log("DOWNLOAD", req.params);
+    res.sendFile(__dirname + "/storage/" + req.params.filename);
 });
 
 let users = new Map();
@@ -392,7 +408,7 @@ setInterval(() => {
     console.log("ROOMS", rooms);
     console.log(io.sockets.adapter.rooms);
     console.log("========");
-}, 2000);
+}, 2000000);
 
 const PORT = 2468;
 

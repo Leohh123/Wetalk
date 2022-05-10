@@ -20,6 +20,8 @@ function register(eventName, callback) {
 
 contextBridge.exposeInMainWorld("wetalkAPI", {
     dialog: (message) => ipcRenderer.invoke("dialog", message),
+    download: (url) => ipcRenderer.invoke("download", url),
+
     register: (uid, passwd) => ipcRenderer.invoke("register", uid, passwd),
     login: (uid, passwd) => ipcRenderer.invoke("login", uid, passwd),
     logout: () => ipcRenderer.invoke("logout"),

@@ -18,6 +18,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
+import { ButtonGroup, Input } from "@mui/material";
 
 class Message extends React.Component {
     render() {
@@ -33,7 +34,19 @@ class Message extends React.Component {
                     />
                 </ListItem>
                 <Typography variant="body1" gutterBottom sx={{ ml: 2 }}>
-                    {this.props.content}
+                    {this.props.content.indexOf("[FILE]") === -1 ? (
+                        this.props.content
+                    ) : (
+                        <Button
+                            onClick={() => {
+                                window.wetalkAPI.download(
+                                    this.props.content.replace("[FILE]", "")
+                                );
+                            }}
+                        >
+                            Download {this.props.content}
+                        </Button>
+                    )}
                 </Typography>
             </Box>
         );
@@ -79,6 +92,7 @@ class InputPanel extends React.Component {
         super(props);
         this.state = {
             text: "",
+            filename: "",
         };
     }
 
@@ -86,7 +100,43 @@ class InputPanel extends React.Component {
         return (
             <Box sx={{ p: 1 }}>
                 <Grid container spacing={1} sx={{ height: 1 }}>
-                    <Grid item xs={9}>
+                    <Grid item xs={3}>
+                        {/* <ButtonGroup
+                            fullWidth
+                            variant="contained"
+                            aria-label="outlined primary button group"
+                        > */}
+                        <form
+                            action="http://localhost:2468/upload"
+                            method="post"
+                            enctype="multipart/form-data"
+                        >
+                            <input type="file" name="any" id="input-file" />
+                            <input
+                                type="submit"
+                                value="提交"
+                                onClick={() => {
+                                    let input =
+                                        document.getElementById("input-file");
+                                    let filename = input.files[0].name;
+                                    this.props.onSend(`[FILE]${filename}`);
+                                    console.log(filename);
+                                }}
+                            />
+                        </form>
+                        {/* <Button
+                                size="large"
+                                sx={{ height: "56px" }}
+                                component={<input type="file" name="any" />}
+                            >
+                                文件
+                            </Button>
+                            <Button size="large" sx={{ height: "56px" }}>
+                                上传
+                            </Button> */}
+                        {/* </ButtonGroup> */}
+                    </Grid>
+                    <Grid item xs={6}>
                         <TextField
                             fullWidth
                             label="我想说..."

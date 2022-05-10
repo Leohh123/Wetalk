@@ -4,6 +4,9 @@ const path = require("path");
 const { io } = require("socket.io-client");
 const socket = io("http://localhost:2468");
 
+const http = require("http");
+const fs = require("fs");
+
 socket.on("connect", () => {
     console.log("socket.on: connect", socket.id);
 });
@@ -58,6 +61,20 @@ function safePromise(func, timeout = 500000) {
 app.whenReady().then(() => {
     ipcMain.handle("dialog", (ev, message) => {
         dialog.showMessageBoxSync({ message });
+    });
+
+    ipcMain.handle("download", async (ev, filename) => {
+        const file = fs.createWriteStream(__dirname + "/download/" + filename);
+        const request = http.get(
+            `http://localhost:2468/download/${filename}`,
+            (response) => {
+                response.pipe(file);
+                file.on("finish", () => {
+                    file.close();
+                    console.log("Download Completed");
+                });
+            }
+        );
     });
 
     ipcMain.handle("register", (ev, uid, passwd) =>
@@ -229,6 +246,39 @@ app.whenReady().then(() => {
 
     createWindow();
 
+    app.on("activate", () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        }
+    });
+});
+
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+        app.quit();
+    }
+    app.on("activate", () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        }
+    });
+});
+
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+        app.quit();
+    }
+    app.on("activate", () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        }
+    });
+});
+
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+        app.quit();
+    }
     app.on("activate", () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
